@@ -63,7 +63,7 @@ class News extends Model
         $news->url = Arr::get($details, 'url');
         $news->image_url = Arr::get($details, 'image_url');
         $news->api_url = Arr::get($details, 'api_url');
-        $news->published_at = Arr::get($details, 'publishedAt');
+        $news->published_at = Arr::get($details, 'publishedAt', now());
 
         $news->save();
     }

@@ -1,37 +1,42 @@
 services:
   app:
+    image: aggregator/app
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: aggregator-app
     restart: unless-stopped
     ports:
       - 9000:9000
     depends_on:
       - nginx
       - db
-    env_file:
-      - .env
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw
   queue-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: aggregator/app
     restart: unless-stopped
-    command: php artisan queue:work
-    environment:
-      IS_WORKER: "true"
-    env_file:
-      - .env
+    container_name: aggregator-queue-worker
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
     depends_on:
-      - db
-      - redis
+      - app
+    volumes:
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:rw
+  schedule-worker:
+    image: aggregator/app
+    restart: unless-stopped
+    container_name: aggregator-schedule-worker
+    command: php artisan schedule:work
+    depends_on:
+      - app
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw
   nginx:
     image: nginx:1-alpine
+    container_name: aggregator-nginx
     ports:
       - 80:80
       - 443:443
@@ -42,6 +47,7 @@ services:
   db:
     image: mysql:8.0
     restart: always
+    container_name: aggregator-mysql
     environment:
       MYSQL_ROOT_PASSWORD: admin123
       MYSQL_DATABASE: news_aggregator
@@ -54,6 +60,7 @@ services:
   redis:
     image: bitnami/redis:7.2
     platform: linux/arm64
+    container_name: aggregator-redis
     ports:
       - 6379:6379
     restart: always
