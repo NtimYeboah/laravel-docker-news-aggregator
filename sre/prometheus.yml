@@ -13,15 +13,8 @@ scrape_configs:
         - node:9100
     metrics_path: "/metrics"
 
-  - job_name: "app"
-    static_configs:
-      - targets:
-        - app:9000
-    metrics_path: "/prometheus"
-
   - job_name: "nginx"
     static_configs:
       - targets:
         - nginx:80
-        - nginx:443
     metrics_path: "/prometheus"
