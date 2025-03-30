@@ -5,13 +5,17 @@ namespace App\Collectors;
 use Spatie\Prometheus\Collectors\Collector;
 use Spatie\Prometheus\Facades\Prometheus;
 
-class HttpRequestTotalCollector implements Collector
+class HttpRequestsTotalCollector implements Collector
 {
     public function register(): void
     {
-        Prometheus::addCounter('Total number of HTTP requests')
-            ->name('http_requests_total')
-            ->helpText('The total number of HTTP requests')
-            ->value(100);
+        Prometheus::addCounter(
+            label: 'count',
+            name: 'http_requests_total',
+            helpText: 'Total number of HTTP requests',
+            initialValue: function () {
+                return 100;
+            }
+        );
     }
 }
