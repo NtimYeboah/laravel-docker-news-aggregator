@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Collectors\HttpRequestsTotalCollector;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Prometheus\Collectors\Horizon\CurrentMasterSupervisorCollector;
 use Spatie\Prometheus\Collectors\Horizon\CurrentProcessesPerQueueCollector;
@@ -17,19 +18,12 @@ class PrometheusServiceProvider extends ServiceProvider
     public function register()
     {
         /*
-         * Here you can register all the exporters that you
-         * want to export to prometheus
-         */
-        Prometheus::addCounter('Total number of HTTP requests')
-            ->name('http_requests_total')
-            ->helpText('The total number of HTTP requests')
-            ->value(100);
-
-        /*
          * Uncomment this line if you want to export
          * all Horizon metrics to prometheus
          */
         $this->registerHorizonCollectors();
+
+        $this->registerApplicationCollectors();
     }
 
     public function registerHorizonCollectors(): self
@@ -42,6 +36,15 @@ class PrometheusServiceProvider extends ServiceProvider
             HorizonStatusCollector::class,
             JobsPerMinuteCollector::class,
             RecentJobsCollector::class,
+        ]);
+
+        return $this;
+    }
+
+    public function registerApplicationCollectors(): self
+    {
+        Prometheus::registerCollectorClasses([
+            HttpRequestsTotalCollector::class,
         ]);
 
         return $this;
