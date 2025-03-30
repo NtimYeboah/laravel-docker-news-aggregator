@@ -20,10 +20,10 @@ class PrometheusServiceProvider extends ServiceProvider
          * Here you can register all the exporters that you
          * want to export to prometheus
          */
-        Prometheus::addGauge('app test guage')
-            ->value(function() {
-                return 123.45;
-            });
+        Prometheus::addCounter('Total number of HTTP requests')
+            ->name('http_requests_total')
+            ->helpText('The total number of HTTP requests')
+            ->value(100);
 
         /*
          * Uncomment this line if you want to export
