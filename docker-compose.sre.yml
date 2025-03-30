@@ -54,7 +54,7 @@ services:
       MYSQL_USER: laravel
       MYSQL_PASSWORD: admin123
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
       - mysql-data:/var/lib/mysql
   redis:
@@ -70,11 +70,11 @@ services:
       - ALLOW_EMPTY_PASSWORD=no
       - REDIS_PASSWORD=redis
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
-  node-exporter:
+  node:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node-exporter
     ports:
-      - "9100:9100"
+      - 9100:9100
     command:
       - '--path.rootfs=/host'
     network_mode: host
@@ -87,13 +87,13 @@ services:
     volumes:
       - ./sre/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - 9090:9090
   grafana:
     image: grafana/grafana:latest
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     ports:
-      - "3000:3000"
+      - 3000:3000
 
 volumes:
   storage:
