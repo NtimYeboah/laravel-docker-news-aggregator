@@ -2,6 +2,7 @@
 
 namespace App\Collectors;
 
+use App\Models\IncomingRequest;
 use Spatie\Prometheus\Collectors\Collector;
 use Spatie\Prometheus\Facades\Prometheus;
 
@@ -14,7 +15,7 @@ class HttpRequestsTotalCollector implements Collector
             name: 'http_requests_total',
             helpText: 'Total number of HTTP requests',
             initialValue: function () {
-                return 100;
+                return IncomingRequest::count();
             }
         );
     }
