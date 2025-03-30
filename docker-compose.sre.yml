@@ -1,0 +1,100 @@
+services:
+  app:
+    image: aggregator/app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aggregator-app
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    depends_on:
+      - nginx
+      - db
+    volumes:
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:rw
+  queue-worker:
+    image: aggregator/app
+    restart: unless-stopped
+    container_name: aggregator-queue-worker
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
+    depends_on:
+      - app
+    volumes:
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:rw
+  schedule-worker:
+    image: aggregator/app
+    restart: unless-stopped
+    container_name: aggregator-schedule-worker
+    command: php artisan schedule:work
+    depends_on:
+      - app
+    volumes:
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:rw
+  nginx:
+    image: nginx:1-alpine
+    container_name: aggregator-nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./scripts/nginx.conf:/etc/nginx/templates/default.conf.template
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:ro
+  db:
+    image: mysql:8.0
+    restart: always
+    container_name: aggregator-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: news_aggregator
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+  redis:
+    image: bitnami/redis:7.2
+    platform: linux/arm64
+    container_name: aggregator-redis
+    ports:
+      - 6379:6379
+    restart: always
+    volumes:
+      - redis-data:/bitnami/redis/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - REDIS_PASSWORD=redis
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    volumes:
+      - ./sre/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  grafana:
+    image: grafana/grafana:9.0.0
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+
+volumes:
+  storage:
+  public:
+  mysql-data:
+  redis-data:
