@@ -18,7 +18,7 @@ services:
     image: aggregator/app
     restart: unless-stopped
     container_name: aggregator-queue-worker
-    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
+    command: php artisan horizon
     depends_on:
       - app
     volumes:
@@ -54,7 +54,7 @@ services:
       MYSQL_USER: laravel
       MYSQL_PASSWORD: admin123
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
   redis:
