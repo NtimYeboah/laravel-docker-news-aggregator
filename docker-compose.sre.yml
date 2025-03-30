@@ -71,25 +71,24 @@ services:
       - REDIS_PASSWORD=redis
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
   node:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node-exporter
+    image: prom/node-exporter:latest
+    restart: always
     ports:
       - 9100:9100
-    command:
-      - '--path.rootfs=/host'
-    network_mode: host
-    pid: host
-    restart: unless-stopped
     volumes:
-      - '/:/host:ro,rslave'
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
   prometheus:
     image: prom/prometheus:latest
     volumes:
       - ./sre/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
+    restart: always
   grafana:
     image: grafana/grafana:latest
+    restart: always
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     ports:
