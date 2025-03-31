@@ -10,7 +10,6 @@ services:
       - 9000:9000
     depends_on:
       - nginx
-      - db
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw
