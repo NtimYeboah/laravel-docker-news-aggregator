@@ -13,6 +13,8 @@ services:
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw
+    networks:
+      - application
   nginx:
     image: nginx:1-alpine
     container_name: aggregator-nginx
@@ -23,6 +25,8 @@ services:
       - ./scripts/nginx.conf:/etc/nginx/templates/default.conf.template
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:ro
+    networks:
+      - application
   node:
     image: prom/node-exporter:latest
     restart: always
@@ -36,3 +40,7 @@ services:
 volumes:
   storage:
   public:
+
+networks:
+  application:
+    driver: bridge
