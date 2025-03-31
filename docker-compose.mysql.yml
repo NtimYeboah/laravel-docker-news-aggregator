@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    container_name: aggregator-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: news_aggregator
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: admin123
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+  redis:
+    image: bitnami/redis:7.2
+    platform: linux/arm64
+    container_name: aggregator-redis
+    ports:
+      - 6379:6379
+    restart: always
+    volumes:
+      - redis-data:/bitnami/redis/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - REDIS_PASSWORD=redis
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+  node:
+    image: prom/node-exporter:latest
+    restart: always
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+volumes:
+  mysql-data:
+  redis-data:

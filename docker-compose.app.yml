@@ -1,0 +1,39 @@
+services:
+  app:
+    image: aggregator/app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aggregator-app
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    depends_on:
+      - nginx
+      - db
+    volumes:
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:rw
+  nginx:
+    image: nginx:1-alpine
+    container_name: aggregator-nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./scripts/nginx.conf:/etc/nginx/templates/default.conf.template
+      - storage:/usr/share/nginx/html/storage:rw
+      - public:/usr/share/nginx/html/public:ro
+  node:
+    image: prom/node-exporter:latest
+    restart: always
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+volumes:
+  storage:
+  public:
