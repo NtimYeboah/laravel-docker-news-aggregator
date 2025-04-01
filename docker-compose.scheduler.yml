@@ -7,8 +7,6 @@ services:
     restart: unless-stopped
     container_name: aggregator-schedule-worker
     command: php artisan schedule:work
-    depends_on:
-      - app
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw

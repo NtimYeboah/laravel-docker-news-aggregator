@@ -7,8 +7,6 @@ services:
     restart: unless-stopped
     container_name: aggregator-queue-worker
     command: php artisan horizon
-    depends_on:
-      - app
     volumes:
       - storage:/usr/share/nginx/html/storage:rw
       - public:/usr/share/nginx/html/public:rw
